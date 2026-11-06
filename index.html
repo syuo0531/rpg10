@@ -1,556 +1,143 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b0e14" />
-  <title>STUDY DUNGEON</title>
-<style>
-:root{
-  --bg:#080b10;--panel:#111722;--panel2:#161f2d;--text:#f4f7fb;--muted:#92a1b5;--line:#273244;
-  --accent:#ffb347;--accent2:#ffd27a;--danger:#ff6b6b;--good:#77e09f;--blue:#6ba8ff;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% -20%,#1b2638 0,#0a0e15 38%,#080b10 75%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
-button{font:inherit;color:inherit;touch-action:manipulation}
-button:disabled{opacity:.42;filter:saturate(.5);cursor:not-allowed}
-#app{max-width:1180px;margin:0 auto}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.topbar h1{font-size:clamp(22px,4vw,34px);margin:2px 0;letter-spacing:.04em}.eyebrow{font-size:11px;letter-spacing:.16em;color:var(--accent)}
-.screen{display:none}.screen.active{display:block}.panel{background:linear-gradient(180deg,rgba(24,33,48,.96),rgba(14,20,30,.96));border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 40px rgba(0,0,0,.22)}.compact{border-radius:16px}
-.hero{padding:clamp(20px,5vw,42px);display:grid;grid-template-columns:1.35fr .8fr;gap:28px}.hero h2{font-size:clamp(34px,7vw,62px);line-height:1.02;margin:16px 0}.hero p{color:var(--muted);font-size:16px;line-height:1.7;max-width:680px}.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:center}.statbox{padding:18px;background:#0d131d;border:1px solid var(--line);border-radius:14px}.statbox span,.label,.hud-mini span{display:block;color:var(--muted);font-size:11px;letter-spacing:.1em}.statbox strong{font-size:30px;display:block;margin-top:4px}
-.badge{display:inline-flex;align-items:center;width:max-content;padding:6px 9px;border-radius:999px;background:rgba(255,179,71,.12);color:var(--accent2);border:1px solid rgba(255,179,71,.25);font-size:11px;font-weight:800;letter-spacing:.07em}.badge.enemy{background:rgba(255,107,107,.12);color:#ff9a9a;border-color:rgba(255,107,107,.25)}
-.cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.primary,.secondary,.ghost{border:1px solid transparent;border-radius:13px;padding:13px 17px;font-weight:800;cursor:pointer;min-height:48px}.big{min-width:150px}.primary{background:linear-gradient(180deg,#ffc15d,#e89422);color:#171008}.secondary{background:#1a2432;border-color:#314157}.ghost{background:transparent;border-color:var(--line);color:var(--muted)}.danger{color:#ff9a9a}
-.grid.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.grid.two .panel{padding:20px}.grid h3{margin:0 0 8px}.grid p,.loop{color:var(--muted);line-height:1.65}
-.run-hud{padding:14px 16px;display:grid;grid-template-columns:minmax(220px,1.4fr) repeat(3,minmax(90px,.4fr));gap:12px;align-items:center}.hud-main{min-width:0}.bar{height:11px;background:#080c12;border:1px solid #263043;border-radius:999px;overflow:hidden;margin-top:7px}.bigbar{height:15px}.bar-fill{height:100%;width:100%;transition:width .28s ease}.bar-fill.hp{background:linear-gradient(90deg,#6fdb93,#b9f383)}.bar-fill.enemyhp{background:linear-gradient(90deg,#e86b6b,#ffae68)}.hud-mini{padding:8px 10px;border-left:1px solid var(--line)}.hud-mini strong{font-size:22px}
-.map{padding:12px;display:flex;gap:8px;justify-content:center;margin-top:12px}.node{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#101722;border:1px solid #2d394c;color:var(--muted);font-weight:900}.node.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,179,71,.12);color:var(--accent)}.node.cleared{background:#13271d;color:var(--good);border-color:#285c3d}
-.battle-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:14px;margin-top:14px}.enemy-card,.question-card{padding:20px;min-height:340px}.enemy-top{display:flex;justify-content:space-between;align-items:flex-start}.enemy-top h2{margin:10px 0 0;font-size:30px}.enemy-emoji{font-size:72px;filter:drop-shadow(0 10px 20px rgba(0,0,0,.25))}.enemy-meta{display:flex;justify-content:space-between;margin-top:10px;color:var(--muted)}.battle-log{margin-top:24px;padding:14px;background:#0d131c;border:1px solid var(--line);border-radius:12px;color:#c8d4e4;min-height:74px;line-height:1.5}
-.question-head{display:flex;justify-content:space-between;align-items:center}.question-card h3{font-size:clamp(20px,3.5vw,28px);line-height:1.45;margin:18px 0}.small-muted{color:var(--muted);font-size:12px}.choices{display:grid;gap:9px}.choice{width:100%;text-align:left;padding:13px 14px;border-radius:13px;background:#121a26;border:1px solid #2a3649;cursor:pointer;min-height:50px}.choice:hover{border-color:#516078}.choice.correct{border-color:#49b978;background:rgba(73,185,120,.12)}.choice.wrong{border-color:#d96868;background:rgba(217,104,104,.12)}.explanation{margin-top:12px;padding:12px;border-radius:12px;background:#0c121a;color:#c2cfdf;border:1px solid var(--line);line-height:1.55}.hidden{display:none!important}
-.action-panel{padding:16px;margin-top:14px}.action-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.action-head h3{margin:0}.hand{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.cardbtn,.reward-card{border-radius:16px;background:linear-gradient(180deg,#1a2434,#111823);border:1px solid #324157;padding:16px;text-align:left;min-height:128px;cursor:pointer}.cardbtn .cost,.reward-card .rarity{font-size:11px;color:var(--accent);font-weight:900;letter-spacing:.08em}.cardbtn strong,.reward-card strong{display:block;font-size:18px;margin:7px 0}.cardbtn p,.reward-card p{margin:0;color:var(--muted);line-height:1.45;font-size:13px}.cardbtn.playable{border-color:rgba(255,179,71,.65);box-shadow:0 0 0 2px rgba(255,179,71,.08)}
-.reward-wrap,.result-wrap{padding:clamp(28px,6vw,60px);text-align:center;max-width:920px;margin:8vh auto 0}.reward-wrap h2,.result-wrap h2{font-size:clamp(34px,6vw,58px);margin:14px 0}.reward-wrap p,.result-wrap p{color:var(--muted)}.reward-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}.reward-card{text-align:left}.reward-card:hover{transform:translateY(-2px);border-color:var(--accent)}.result-icon{font-size:80px}.result-wrap button{margin:6px}.victory{border-color:rgba(255,179,71,.45)}
-.flash-good{animation:goodFlash .45s ease}.flash-bad{animation:badFlash .45s ease}@keyframes goodFlash{50%{box-shadow:0 0 0 3px rgba(119,224,159,.38),0 0 32px rgba(119,224,159,.14)}}@keyframes badFlash{50%{transform:translateX(-3px);box-shadow:0 0 0 3px rgba(255,107,107,.34)}}
-@media(max-width:820px){.hero,.battle-grid{grid-template-columns:1fr}.hero-stats{grid-template-columns:repeat(4,1fr)}.statbox{padding:12px}.statbox strong{font-size:22px}.run-hud{grid-template-columns:1fr 1fr 1fr}.hud-main{grid-column:1/-1}.hand,.reward-grid{grid-template-columns:1fr}.enemy-card{min-height:270px}.question-card{min-height:auto}}
-@media(max-width:560px){body{padding:10px 10px max(18px,env(safe-area-inset-bottom))}.topbar{align-items:flex-end}.hero{padding:22px}.hero-stats{grid-template-columns:1fr 1fr}.grid.two{grid-template-columns:1fr}.run-hud{grid-template-columns:repeat(3,1fr)}.hud-mini{border-left:0;border-top:1px solid var(--line);padding-top:10px}.enemy-emoji{font-size:58px}.enemy-top h2{font-size:24px}.panel{border-radius:16px}.map{overflow-x:auto;justify-content:flex-start}.node{min-width:42px}}
-
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10172b">
+  <meta name="description" content="写真500枚を目安に保存できる、パスワード付きの端末内フォト保管庫。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Photo Vault">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <title>Photo Vault | 写真保管庫</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1020; --surface:#131c30; --surface2:#19243a; --border:rgba(255,255,255,.1); --text:#f8faff; --muted:#a0aec7; --accent:#9af1d8; --accentText:#0c2b25; --danger:#ff8b98; --radius:20px; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif; }
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;min-height:100dvh;background:radial-gradient(circle at 88% 5%,rgba(53,121,136,.16),transparent 32%),var(--bg);color:var(--text);-webkit-tap-highlight-color:transparent}
+    button,input,select{font:inherit} button{cursor:pointer} button:disabled{opacity:.45;cursor:not-allowed} .hidden{display:none!important}
+    .shell{max-width:1100px;margin:auto;padding:0 18px 88px}.topbar{height:88px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:12px}.logo{width:43px;height:43px;border-radius:14px;background:#a3f2db;display:flex;align-items:center;justify-content:center;color:#12332d;box-shadow:0 8px 30px rgba(155,241,216,.15)}.brand-title{font-size:18px;font-weight:800;letter-spacing:-.45px}.brand-kicker{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.09em}.top-actions{display:flex;align-items:center;gap:8px}.top-actions[hidden]{display:none}
+    .btn{border:0;border-radius:13px;min-height:44px;padding:10px 18px;font-weight:750;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .16s,background .16s;white-space:nowrap}.btn:active{transform:scale(.98)}.btn-primary{background:var(--accent);color:var(--accentText)}.btn-secondary{background:rgba(255,255,255,.085);color:var(--text)}.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-danger{background:rgba(255,139,152,.15);color:#ffc5ca;border:1px solid rgba(255,139,152,.28)}.btn-icon{padding:10px;min-width:44px}.btn-small{min-height:38px;padding:8px 12px;font-size:13px}.svg{width:19px;height:19px;display:inline-block;vertical-align:middle;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    .auth-wrap{min-height:calc(100dvh - 150px);display:flex;align-items:center;justify-content:center}.auth-card{width:min(100%,440px);padding:30px;border:1px solid var(--border);background:linear-gradient(152deg,#1b2941,#11192b);border-radius:28px;box-shadow:0 18px 70px rgba(0,0,0,.22)}.auth-emoji{width:60px;height:60px;border-radius:18px;display:grid;place-items:center;background:rgba(154,241,216,.14);color:var(--accent);margin-bottom:22px}.auth-card h1{font-size:27px;letter-spacing:-.9px;line-height:1.3;margin:0 0 10px}.auth-card p{color:var(--muted);line-height:1.75;font-size:14px;margin:0 0 23px}.field-label{display:block;margin:14px 0 8px;font-weight:680;font-size:13px}.field{border:1px solid var(--border);background:#0d1526;color:var(--text);width:100%;min-height:51px;padding:13px 14px;border-radius:13px;outline:none}.field:focus{border-color:rgba(154,241,216,.75);box-shadow:0 0 0 3px rgba(154,241,216,.1)}.auth-submit{width:100%;margin-top:21px}.privacy-note{border-top:1px solid var(--border);padding-top:17px;margin-top:22px;color:var(--muted);font-size:12px;line-height:1.7;display:flex;gap:9px}.warning{color:#ffcf8b}
+    .hero{margin-top:15px;padding:26px 28px;border-radius:27px;background:linear-gradient(105deg,#1b3340,#173044 54%,#1d2440);border:1px solid rgba(154,241,216,.12);display:flex;align-items:center;justify-content:space-between;gap:22px;position:relative;overflow:hidden}.hero:after{content:"";width:290px;height:290px;border:1px solid rgba(154,241,216,.11);border-radius:50%;position:absolute;right:22%;top:-200px;pointer-events:none}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:800;color:var(--accent);margin:0 0 11px}.hero h1{font-size:clamp(24px,4vw,35px);letter-spacing:-1.1px;margin:0 0 9px}.hero p{color:#c3d4df;font-size:13px;margin:0;line-height:1.7}.hero .btn{position:relative;z-index:2}.stats{display:flex;gap:19px;margin-top:22px;align-items:baseline;flex-wrap:wrap}.stat-num{font-size:22px;font-weight:850;letter-spacing:-.7px}.stat-label{font-size:12px;color:#a9c5ce;margin-left:4px}.progress-track{height:5px;background:#293f4e;border-radius:10px;max-width:310px;margin-top:13px;overflow:hidden}.progress-fill{width:0%;height:100%;background:var(--accent);border-radius:10px;transition:width .2s}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:29px 0 16px;flex-wrap:wrap}.toolbar h2{font-size:19px;letter-spacing:-.6px;margin:0}.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.search{width:215px;min-height:40px;padding:9px 13px;background:var(--surface);border:1px solid var(--border);border-radius:12px;color:var(--text);outline:none;font-size:13px}.search:focus{border-color:var(--accent)}.sort{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:9px 11px;color:var(--text);font-size:13px;min-height:40px}.sort option{background:var(--surface)}
+    .gallery{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.tile{border-radius:16px;aspect-ratio:1/1;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.06);background:#1b283b;cursor:pointer;display:flex;align-items:center;justify-content:center}.tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .22s}.tile:hover img{transform:scale(1.05)}.tile-placeholder{color:#546a7b}.tile-label{position:absolute;left:0;bottom:0;width:100%;padding:25px 7px 7px;font-size:11px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;background:linear-gradient(transparent,rgba(0,0,0,.64));opacity:0;transition:opacity .2s}.tile:hover .tile-label{opacity:1}.fav-mark{position:absolute;top:9px;right:10px;color:#ffe69e;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));font-size:18px}.tile-check{position:absolute;top:10px;left:10px;width:25px;height:25px;border-radius:50%;background:rgba(0,0,0,.56);border:2px solid white;display:grid;place-items:center;z-index:2}.tile.selected{outline:3px solid var(--accent);outline-offset:-3px}.tile.selected .tile-check{background:var(--accent);color:#15372d;border-color:var(--accent)}.empty{padding:70px 24px;border:1px dashed rgba(255,255,255,.15);border-radius:20px;background:rgba(255,255,255,.02);text-align:center;color:var(--muted)}.empty-symbol{font-size:40px;margin-bottom:12px}.empty h3{color:var(--text);font-size:19px;margin:6px 0 8px}.empty p{font-size:13px;line-height:1.8;margin:0 0 18px}
+    .footnote{margin:28px 0 0;font-size:12px;color:#8393af;line-height:1.7}.footnote strong{color:#bac9db}.bottom-tools{display:none}
+    .overlay{position:fixed;inset:0;background:rgba(4,9,18,.84);backdrop-filter:blur(10px);z-index:40;display:flex;align-items:center;justify-content:center;padding:16px}.modal{width:min(100%,480px);max-height:calc(100dvh - 32px);overflow-y:auto;background:#162137;border:1px solid rgba(255,255,255,.13);border-radius:24px;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.48)}.modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px}.modal h2{font-size:21px;letter-spacing:-.6px;margin:0}.modal p{font-size:13px;line-height:1.8;color:var(--muted)}.modal .btn{margin-top:8px}.modal-actions{display:grid;gap:10px}.modal-actions .btn{width:100%}.mini-note{background:rgba(154,241,216,.08);border:1px solid rgba(154,241,216,.13);padding:12px;border-radius:12px;color:#b6d4c8;font-size:12px;line-height:1.7;margin:15px 0}.select-label{font-size:13px;color:var(--muted);display:block;margin-top:14px;margin-bottom:7px}.close-btn{background:transparent;color:var(--muted);border:0;padding:8px;display:grid;place-items:center}
+    .viewer{position:fixed;inset:0;background:rgba(2,5,13,.95);z-index:50;display:flex;flex-direction:column;padding:env(safe-area-inset-top,0) 10px env(safe-area-inset-bottom,0)}.viewer-top{display:flex;align-items:center;justify-content:space-between;padding:10px 7px;color:var(--text);gap:8px}.viewer-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:#d8e1f0;flex:1;min-width:0}.viewer-imgwrap{min-height:0;flex:1;display:grid;place-items:center;overflow:hidden}.viewer-imgwrap img{max-width:100%;max-height:100%;object-fit:contain}.viewer-bottom{display:flex;align-items:center;justify-content:center;gap:9px;padding:13px 0 17px;flex-wrap:wrap}.viewer-bottom .btn{font-size:13px}.viewer-nav{min-width:40px;min-height:44px;background:rgba(255,255,255,.1);border:0;border-radius:12px;color:#fff;font-size:24px}
+    .processing{position:fixed;inset:0;z-index:70;background:rgba(6,12,23,.9);display:grid;place-items:center;padding:20px}.processing-card{width:min(100%,390px);padding:28px;background:var(--surface);border:1px solid var(--border);border-radius:23px;text-align:center}.processing-card h2{margin:0 0 10px;font-size:19px}.processing-card p{color:var(--muted);font-size:13px;line-height:1.6}.processing-bar{height:8px;background:#2b364b;border-radius:9px;overflow:hidden;margin:19px 0}.processing-bar>div{height:100%;width:0%;background:var(--accent);transition:width .12s}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);padding:13px 18px;background:#273852;color:#fff;border:1px solid rgba(255,255,255,.13);border-radius:12px;z-index:100;max-width:calc(100vw - 28px);font-size:13px;text-align:center;box-shadow:0 14px 25px rgba(0,0,0,.3)}
+    @media(max-width:800px){.gallery{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}}@media(max-width:580px){.shell{padding:0 14px 90px}.topbar{height:75px}.brand-title{font-size:16px}.brand-kicker{font-size:10px}.logo{width:39px;height:39px}.hero{margin-top:6px;padding:23px 20px;display:block}.hero .btn{width:100%;margin-top:22px}.hero h1{font-size:26px}.stats{margin-top:18px}.gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.tile{border-radius:10px}.toolbar{gap:13px;margin-top:24px}.toolbar-right{width:100%;justify-content:space-between}.search{flex:1;min-width:140px;width:calc(100% - 160px)}.sort{max-width:150px}.auth-card{padding:24px 20px}.tile-label{display:none}.viewer-bottom .btn{padding:8px 12px}.top-actions .btn-small span{display:none}}
+  </style>
 </head>
 <body>
-  <div id="app">
-    <header class="topbar">
-      <div>
-        <div class="eyebrow">KNOWLEDGE ROGUELIKE</div>
-        <h1>STUDY DUNGEON</h1>
-      </div>
-      <button id="resetBtn" class="ghost danger" type="button">RESET</button>
-    </header>
-
-    <main>
-      <section id="homeScreen" class="screen active">
-        <div class="hero panel">
-          <div class="hero-copy">
-            <span class="badge">PHASE 1</span>
-            <h2>知識で潜れ。<br>カードで生き残れ。</h2>
-            <p>問題に正解すると行動できるローグライク。敵を倒すたびにカードを獲得し、最深部のボスを倒せ。</p>
-            <div class="cta-row">
-              <button id="newRunBtn" class="primary big" type="button">NEW RUN</button>
-              <button id="continueBtn" class="secondary big" type="button">CONTINUE</button>
-            </div>
-          </div>
-          <div class="hero-stats">
-            <div class="statbox"><span>BEST FLOOR</span><strong id="bestFloor">0</strong></div>
-            <div class="statbox"><span>TOTAL ANSWERS</span><strong id="totalAnswers">0</strong></div>
-            <div class="statbox"><span>ACCURACY</span><strong id="accuracy">0%</strong></div>
-            <div class="statbox"><span>MAX COMBO</span><strong id="maxCombo">0</strong></div>
-          </div>
-        </div>
-
-        <div class="grid two">
-          <div class="panel">
-            <h3>ゲームループ</h3>
-            <div class="loop">問題 → 正解 → カード行動 → 敵撃破 → 3択報酬 → 強化 → ボス</div>
-          </div>
-          <div class="panel">
-            <h3>今回の実装</h3>
-            <p>5部屋ラン / 問題出題 / 戦闘 / コンボ / カード獲得 / 回復 / ボス / localStorage保存。</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="runScreen" class="screen">
-        <div class="run-hud panel compact">
-          <div class="hud-main">
-            <div><span class="label">HP</span><strong id="playerHpText">60 / 60</strong></div>
-            <div class="bar"><div id="playerHpBar" class="bar-fill hp"></div></div>
-          </div>
-          <div class="hud-mini"><span>ROOM</span><strong id="roomText">1 / 5</strong></div>
-          <div class="hud-mini"><span>COMBO</span><strong id="comboText">0</strong></div>
-          <div class="hud-mini"><span>ENERGY</span><strong id="energyText">0</strong></div>
-        </div>
-
-        <div class="map panel compact" id="mapNodes"></div>
-
-        <div class="battle-grid">
-          <section class="enemy-card panel">
-            <div class="enemy-top">
-              <div>
-                <span id="enemyType" class="badge enemy">NORMAL</span>
-                <h2 id="enemyName">Ash Goblin</h2>
-              </div>
-              <div class="enemy-emoji" id="enemyEmoji">👹</div>
-            </div>
-            <div class="bar bigbar"><div id="enemyHpBar" class="bar-fill enemyhp"></div></div>
-            <div class="enemy-meta"><span>HP <strong id="enemyHpText">32 / 32</strong></span><span>ATK <strong id="enemyAtkText">6</strong></span></div>
-            <div id="battleLog" class="battle-log">問題に答えて攻撃権を獲得しよう。</div>
-          </section>
-
-          <section class="question-card panel">
-            <div class="question-head">
-              <span id="questionSubject" class="badge">解剖学</span>
-              <span id="questionDifficulty" class="small-muted">NORMAL</span>
-            </div>
-            <h3 id="questionText">読み込み中...</h3>
-            <div id="choices" class="choices"></div>
-            <div id="explanation" class="explanation hidden"></div>
-          </section>
-        </div>
-
-        <section class="panel action-panel">
-          <div class="action-head">
-            <h3>ACTION CARDS</h3>
-            <span id="actionHint" class="small-muted">正解するとカードを使えます</span>
-          </div>
-          <div id="hand" class="hand"></div>
-        </section>
-      </section>
-
-      <section id="rewardScreen" class="screen">
-        <div class="panel reward-wrap">
-          <span class="badge">ROOM CLEAR</span>
-          <h2>カードを1枚獲得</h2>
-          <p>今回のラン中だけデッキが強化されます。</p>
-          <div id="rewardCards" class="reward-grid"></div>
-        </div>
-      </section>
-
-      <section id="gameOverScreen" class="screen">
-        <div class="panel result-wrap">
-          <div class="result-icon">☠️</div>
-          <h2>RUN FAILED</h2>
-          <p id="gameOverText">到達 ROOM 3</p>
-          <button id="retryBtn" class="primary big" type="button">もう一度潜る</button>
-          <button id="homeBtn1" class="secondary big" type="button">HOME</button>
-        </div>
-      </section>
-
-      <section id="victoryScreen" class="screen">
-        <div class="panel result-wrap victory">
-          <div class="result-icon">🏆</div>
-          <h2>BOSS DEFEATED</h2>
-          <p id="victoryText">5部屋踏破！</p>
-          <button id="againBtn" class="primary big" type="button">次のRUNへ</button>
-          <button id="homeBtn2" class="secondary big" type="button">HOME</button>
-        </div>
-      </section>
-    </main>
-  </div>
-
+<div class="shell">
+  <header class="topbar">
+    <div class="brand"><div class="logo" aria-hidden="true"><svg class="svg" style="width:25px;height:25px" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4.5 17 5-5 3.3 3.3 2.6-2.6 4.1 4.1"/></svg></div><div><div class="brand-title">Photo Vault</div><div class="brand-kicker">PRIVATE PHOTO LIBRARY</div></div></div>
+    <div class="top-actions" id="topActions" hidden><button type="button" class="btn btn-secondary btn-small" id="settingsBtn" aria-label="設定">⚙ <span> 設定</span></button><button type="button" class="btn btn-outline btn-small" id="lockBtn" aria-label="ロック">🔒 <span> ロック</span></button></div>
+  </header>
+  <section id="authScreen" class="auth-wrap">
+    <div id="setupCard" class="auth-card hidden">
+      <div class="auth-emoji"><svg class="svg" style="width:32px;height:32px" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="3"/><path d="M7 9V6a5 5 0 0 1 10 0v3"/></svg></div>
+      <h1>あなただけの<br>写真保管庫を作成</h1>
+      <p>最大500枚を目安に写真をまとめて保存。写真はパスワードで暗号化して、この端末のブラウザ内に保管します。</p>
+      <form id="setupForm"><label class="field-label" for="newPassword">パスワード（8文字以上）</label><input id="newPassword" class="field" type="password" autocomplete="new-password" minlength="8" required placeholder="パスワードを設定"><label class="field-label" for="confirmPassword">パスワードを再入力</label><input id="confirmPassword" class="field" type="password" autocomplete="new-password" minlength="8" required placeholder="確認のためもう一度"><button class="btn btn-primary auth-submit" type="submit">保管庫を作成する</button></form>
+      <button id="setupRestoreBtn" type="button" class="btn btn-outline" style="width:100%;margin-top:12px">バックアップから復元</button>
+      <div class="privacy-note"><span>🛡️</span><span>写真のアップロードはありません。ただし、ブラウザデータを消すと写真も消えるため、定期的なバックアップが必要です。パスワードは再発行できません。</span></div>
+    </div>
+    <div id="unlockCard" class="auth-card hidden">
+      <div class="auth-emoji"><svg class="svg" style="width:32px;height:32px" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg></div>
+      <h1>おかえりなさい</h1><p>パスワードを入力して、写真保管庫のロックを解除してください。</p>
+      <form id="unlockForm"><label class="field-label" for="unlockPassword">パスワード</label><input id="unlockPassword" class="field" type="password" autocomplete="current-password" required placeholder="パスワードを入力"><button class="btn btn-primary auth-submit" type="submit">ロックを解除</button></form>
+      <div class="privacy-note"><span>🔐</span><span>写真の暗号化はブラウザ内で行われます。パスワードを忘れた場合、写真は復元できません。</span></div>
+    </div>
+  </section>
+  <main id="vaultScreen" class="hidden">
+    <section class="hero">
+      <div><div class="eyebrow">Your private space</div><h1>大切な写真を、<br>ひとつの場所に。</h1><p>暗号化してこの端末に保存。外部への自動送信なし。</p><div class="stats"><div><span class="stat-num" id="photoCount">0</span><span class="stat-label">/ 500 枚</span></div><div><span class="stat-num" id="photoSize">0 MB</span><span class="stat-label">保存容量（目安）</span></div></div><div class="progress-track"><div class="progress-fill" id="countBar"></div></div></div>
+      <button type="button" class="btn btn-primary" id="addPhotosBtn"><svg class="svg" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> 写真を追加</button>
+    </section>
+    <div class="toolbar"><div class="toolbar-left"><h2 id="galleryHeading">すべての写真</h2><button type="button" class="btn btn-secondary btn-small" id="selectBtn">選択</button><button type="button" class="btn btn-danger btn-small hidden" id="deleteSelectedBtn">選択した写真を削除</button></div><div class="toolbar-right"><input class="search" id="searchInput" type="search" placeholder="写真名で検索" aria-label="写真名で検索"><select class="sort" id="filterSelect" aria-label="表示する写真"><option value="all">すべての写真</option><option value="fav">お気に入りのみ</option><option value="new">新しい順</option><option value="old">古い順</option></select></div></div>
+    <div id="gallery" class="gallery"></div><div id="emptyState" class="empty hidden"><div class="empty-symbol">🖼️</div><h3 id="emptyTitle">写真はまだありません</h3><p id="emptyDescription">「写真を追加」から、まとめて選んで保存できます。</p><button id="emptyAddBtn" class="btn btn-primary">写真を追加する</button></div>
+    <p class="footnote"><strong>大切なお知らせ：</strong>この保管庫のデータは開いているブラウザ・サイト・端末ごとに保存されます。ブラウザの履歴やWebサイトデータの削除、端末の故障、ストレージ不足などで失われることがあります。設定から暗号化バックアップを定期的に保存してください。</p>
+  </main>
+</div>
+<input id="photosInput" type="file" accept="image/*,.heic,.heif" multiple class="hidden">
+<input id="backupInput" type="file" accept=".pvault,application/octet-stream" class="hidden">
+<div id="settingsOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle"><div class="modal"><div class="modal-header"><h2 id="settingsTitle">保管庫の設定</h2><button type="button" id="closeSettingsBtn" class="close-btn" aria-label="閉じる">✕</button></div><p>写真はAES-GCMで暗号化されています。端末やブラウザを変更するときは、バックアップファイルが必要です。</p><label class="select-label" for="qualityMode">新しく追加する写真の画質</label><select class="field" id="qualityMode"><option value="compact">容量節約（最大長辺2200px／推奨）</option><option value="original">元の画質を保持（容量が大きくなります）</option></select><div class="mini-note">500枚は上限枚数の目安です。実際に保存できる量は端末とブラウザの空き容量に左右されます。容量節約では元画像をJPEGに変換します。</div><div class="modal-actions"><button type="button" id="exportBtn" class="btn btn-primary">⬇ 暗号化バックアップを保存</button><button type="button" id="restoreBtn" class="btn btn-secondary">⬆ バックアップから復元</button><button type="button" id="storageBtn" class="btn btn-outline">容量の状態を確認</button></div><p id="storageInfo"></p><button type="button" id="clearVaultBtn" class="btn btn-danger" style="width:100%">すべての写真と設定を削除</button></div></div>
+<div id="viewer" class="viewer hidden" role="dialog" aria-modal="true" aria-label="写真のプレビュー"><div class="viewer-top"><button type="button" class="close-btn" id="viewerCloseBtn" aria-label="閉じる" style="color:white;font-size:22px">✕</button><div id="viewerTitle" class="viewer-title"></div><button id="viewerFavBtn" class="btn btn-secondary btn-icon" aria-label="お気に入り切り替え">☆</button></div><div class="viewer-imgwrap" id="viewerImgWrap"><span id="viewerLoading">読み込み中...</span><img id="viewerImage" class="hidden" alt="保存された写真"></div><div class="viewer-bottom"><button id="prevBtn" class="viewer-nav" aria-label="前の写真">‹</button><button id="downloadBtn" class="btn btn-secondary">保存</button><button id="deleteBtn" class="btn btn-danger">削除</button><button id="nextBtn" class="viewer-nav" aria-label="次の写真">›</button></div></div>
+<div id="processing" class="processing hidden" role="status" aria-live="polite"><div class="processing-card"><h2 id="processingTitle">処理中</h2><p id="processingText">写真を保存しています</p><div class="processing-bar"><div id="processingBar"></div></div><button id="cancelBtn" type="button" class="btn btn-secondary btn-small">残りをキャンセル</button></div></div>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 <script>
+'use strict';
 (() => {
-  'use strict';
-
-  const SAVE_KEY = 'studyDungeonSaveV1';
-  const STATS_KEY = 'studyDungeonStatsV1';
-
-  const screens = ['homeScreen','runScreen','rewardScreen','gameOverScreen','victoryScreen'];
-  const $ = (id) => document.getElementById(id);
-
-  const fallbackQuestions = [{"id":"a1","question":"上腕二頭筋の主な作用として正しいものはどれか。","choices":["肘関節伸展","肘関節屈曲","肩関節内旋のみ","手関節屈曲"],"answer":1,"explanation":"上腕二頭筋は主に肘関節屈曲と前腕回外に作用する。","subject":"解剖学","year":"sample","difficulty":"NORMAL"},{"id":"a2","question":"膝関節前方引き出しテストで主に評価する靱帯はどれか。","choices":["前十字靱帯","後十字靱帯","内側側副靱帯","外側側副靱帯"],"answer":0,"explanation":"前方引き出しテストは前十字靱帯（ACL）の前方制動機能を評価する。","subject":"外傷・障害","year":"sample","difficulty":"NORMAL"},{"id":"a3","question":"ATP-PCr系が主に寄与する運動として最も適切なのはどれか。","choices":["2時間のジョギング","10秒程度の全力スプリント","30分の低強度自転車","睡眠中の代謝"],"answer":1,"explanation":"ATP-PCr系は短時間・高強度の運動で大きく寄与する。","subject":"生理学","year":"sample","difficulty":"EASY"},{"id":"a4","question":"最大酸素摂取量を表す一般的な記号はどれか。","choices":["VO₂max","HRrest","RPE","BMI"],"answer":0,"explanation":"最大酸素摂取量はVO₂maxと表記される。","subject":"生理学","year":"sample","difficulty":"EASY"},{"id":"a5","question":"ハムストリングスに含まれない筋はどれか。","choices":["大腿二頭筋","半腱様筋","半膜様筋","大腿直筋"],"answer":3,"explanation":"大腿直筋は大腿四頭筋の一つであり、ハムストリングスには含まれない。","subject":"解剖学","year":"sample","difficulty":"EASY"},{"id":"a6","question":"RICE処置のIが示すものはどれか。","choices":["Ice","Interval","Internal","Intensity"],"answer":0,"explanation":"RICEはRest, Ice, Compression, Elevationの頭文字。","subject":"外傷・障害","year":"sample","difficulty":"EASY"},{"id":"a7","question":"筋力トレーニングで漸進性過負荷の考え方として正しいものはどれか。","choices":["常に同じ負荷だけを使う","能力向上に応じて刺激を段階的に増やす","疲労が強いほど毎日最大重量を扱う","フォームより重量を優先する"],"answer":1,"explanation":"適応に合わせて負荷・回数・頻度などを段階的に増やすのが漸進性過負荷。","subject":"トレーニング科学","year":"sample","difficulty":"NORMAL"},{"id":"a8","question":"糖質の主な役割として最も適切なのはどれか。","choices":["主要なエネルギー源になる","骨の構造だけを作る","神経伝達を完全に止める","体温を必ず下げる"],"answer":0,"explanation":"糖質は運動時を含む主要なエネルギー源の一つ。","subject":"栄養学","year":"sample","difficulty":"EASY"},{"id":"a9","question":"遠心性収縮の説明として正しいものはどれか。","choices":["筋が短くなりながら力を発揮する","筋長がほぼ変わらない","筋が長くなりながら力を発揮する","筋活動が完全にない"],"answer":2,"explanation":"遠心性収縮は筋が伸張されながら張力を発揮する収縮様式。","subject":"生理学","year":"sample","difficulty":"NORMAL"},{"id":"a10","question":"肩甲骨の上方回旋に関与する代表的な筋の組み合わせはどれか。","choices":["僧帽筋と前鋸筋","上腕二頭筋と上腕三頭筋","大胸筋と広背筋のみ","腹直筋と腓腹筋"],"answer":0,"explanation":"僧帽筋上部・下部線維と前鋸筋は肩甲骨上方回旋に重要。","subject":"解剖学","year":"sample","difficulty":"NORMAL"}];
-
-  const CARD_POOL = [
-    {id:'strike',name:'POWER STRIKE',desc:'敵に8ダメージ。',cost:1,rarity:'COMMON',effect:{damage:8}},
-    {id:'guard',name:'GUARD',desc:'次の敵攻撃を6軽減。',cost:1,rarity:'COMMON',effect:{block:6}},
-    {id:'focus',name:'FOCUS EDGE',desc:'敵に5ダメージ。次の正解時ダメージ+4。',cost:1,rarity:'UNCOMMON',effect:{damage:5,focus:4}},
-    {id:'heal',name:'RECOVER',desc:'HPを7回復。',cost:1,rarity:'UNCOMMON',effect:{heal:7}},
-    {id:'double',name:'DOUBLE HIT',desc:'敵に12ダメージ。',cost:2,rarity:'RARE',effect:{damage:12}},
-    {id:'burst',name:'FORGE BURST',desc:'敵に18ダメージ。',cost:3,rarity:'EPIC',effect:{damage:18}},
-    {id:'shieldhit',name:'IRON IMPACT',desc:'8ダメージ＋4ブロック。',cost:2,rarity:'RARE',effect:{damage:8,block:4}},
-    {id:'insight',name:'INSIGHT',desc:'HPを4回復しENERGY+1。',cost:1,rarity:'RARE',effect:{heal:4,energy:1}}
-  ];
-
-  const ENEMIES = [
-    {name:'Ash Goblin',emoji:'👹',hp:28,atk:5,type:'NORMAL'},
-    {name:'Iron Slime',emoji:'🧿',hp:36,atk:6,type:'NORMAL'},
-    {name:'Rune Wolf',emoji:'🐺',hp:44,atk:7,type:'ELITE'},
-    {name:'Abyss Knight',emoji:'⚔️',hp:52,atk:8,type:'ELITE'},
-    {name:'The Examiner',emoji:'🐉',hp:82,atk:10,type:'BOSS'}
-  ];
-
-  let questions = fallbackQuestions;
-  let state = null;
-  let lockedAnswer = false;
-
-  const initialStats = () => ({bestFloor:0,totalAnswers:0,correctAnswers:0,maxCombo:0,wins:0});
-  const loadStats = () => {
-    try { return {...initialStats(), ...(JSON.parse(localStorage.getItem(STATS_KEY)) || {})}; }
-    catch { return initialStats(); }
-  };
-  const saveStats = (stats) => localStorage.setItem(STATS_KEY, JSON.stringify(stats));
-
-  function freshRun() {
-    return {
-      hp:60,maxHp:60,energy:0,block:0,focusBonus:0,combo:0,
-      room:0,
-      deck:['strike','strike','guard'],
-      hand:[],
-      answeredCurrent:false,
-      currentQuestionId:null,
-      enemy:null,
-      runAnswers:0,
-      runCorrect:0
-    };
+  const MAX_PHOTOS=500, DB_NAME='PocketPhotoVault_v2', DB_VERSION=1, VERIFY='PHOTO_VAULT_UNLOCK_OK', MAGIC='PVAULT2\n';
+  let db, key=null, config=null, photos=[], selectMode=false, selected=new Set(), imageUrls=new Map(), currentPhotoId=null, viewerObjectUrl=null, generation=0, observer=null, busy=false, abortImport=false, toastTimer=null, quality='compact';
+  const $=id=>document.getElementById(id);
+  const encoder=new TextEncoder(), decoder=new TextDecoder();
+  const show=(id,visible)=>$(id).classList.toggle('hidden',!visible);
+  function toast(msg){clearTimeout(toastTimer);$('toast').textContent=msg;show('toast',true);toastTimer=setTimeout(()=>show('toast',false),4500)}
+  function fmtBytes(n){if(!n)return '0 MB';if(n<1024*1024)return `${(n/1024).toFixed(0)} KB`;return `${(n/1024/1024).toFixed(1)} MB`}
+  function errMsg(e){return e?.name==='QuotaExceededError'?'保存容量が足りません。バックアップを取って空き容量を確認してください。':(e?.message||String(e))}
+  function req(r){return new Promise((resolve,reject)=>{r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error||new Error('データを読み書きできません'))})}
+  function txDone(tx){return new Promise((resolve,reject)=>{tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error||new Error('保存に失敗しました'));tx.onabort=()=>reject(tx.error||new Error('保存が中断しました'))})}
+  function transaction(names,mode='readonly'){return db.transaction(names,mode)}
+  async function initDB(){db=await new Promise((resolve,reject)=>{const r=indexedDB.open(DB_NAME,DB_VERSION);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('meta'))d.createObjectStore('meta',{keyPath:'id'});if(!d.objectStoreNames.contains('photos'))d.createObjectStore('photos',{keyPath:'id'});if(!d.objectStoreNames.contains('full'))d.createObjectStore('full',{keyPath:'id'});if(!d.objectStoreNames.contains('thumbs'))d.createObjectStore('thumbs',{keyPath:'id'})};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+  async function get(store,id){return req(transaction([store]).objectStore(store).get(id))}
+  async function getAll(store){return req(transaction([store]).objectStore(store).getAll())}
+  async function put(store,item){const t=transaction([store],'readwrite');t.objectStore(store).put(item);await txDone(t)}
+  async function derive(password,salt){const material=await crypto.subtle.importKey('raw',encoder.encode(password),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:new Uint8Array(salt),iterations:210000,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+  async function encrypt(bytes,secretKey=key){const iv=crypto.getRandomValues(new Uint8Array(12));const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},secretKey,bytes);return {iv:Array.from(iv),data:cipher}}
+  async function decrypt(record,secretKey=key){return crypto.subtle.decrypt({name:'AES-GCM',iv:new Uint8Array(record.iv)},secretKey,record.data)}
+  function randId(){return crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`}
+  function setScreens(mode){show('authScreen',mode!=='vault');show('vaultScreen',mode==='vault');show('setupCard',mode==='setup');show('unlockCard',mode==='unlock');$('topActions').hidden=mode!=='vault'}
+  async function start(){if(!window.indexedDB||!crypto?.subtle){setScreens('setup');$('setupForm').innerHTML='<p class="warning">このブラウザでは暗号化保存に対応していません。HTTPSのページとしてSafariまたはChromeで開いてください。</p>';return}try{await initDB();config=await get('meta','config');setScreens(config?'unlock':'setup')}catch(e){setScreens('setup');$('setupForm').innerHTML=`<p class="warning">保存領域を利用できません。通常のブラウザで開き、プライベートブラウズを解除してください。</p>`;console.error(e)}}
+  async function requestPersistence(){try{if(navigator.storage?.persist)await navigator.storage.persist()}catch(_){}}
+  async function createVault(password){const salt=crypto.getRandomValues(new Uint8Array(16));const newKey=await derive(password,salt);const check=await encrypt(encoder.encode(VERIFY),newKey);config={id:'config',version:2,salt:Array.from(salt),checkIv:check.iv,checkData:check.data,createdAt:Date.now()};await put('meta',config);key=newKey;await requestPersistence();await enterVault()}
+  async function unlockVault(password){const tryKey=await derive(password,config.salt);const plain=await decrypt({iv:config.checkIv,data:config.checkData},tryKey);if(decoder.decode(plain)!==VERIFY)throw new Error('パスワードが正しくありません');key=tryKey;await requestPersistence();await enterVault()}
+  async function enterVault(){photos=await getAll('photos');quality='compact';$('qualityMode').value=quality;selectMode=false;selected.clear();$('searchInput').value='';$('filterSelect').value='all';setScreens('vault');refresh();$('unlockPassword').value='';$('newPassword').value='';$('confirmPassword').value=''}
+  function lockVault(){generation++;key=null;config=null;photos=[];selected.clear();selectMode=false;closeViewer();revokeAll();show('settingsOverlay',false);$('gallery').replaceChildren();setScreens('unlock');get('meta','config').then(c=>{config=c}).catch(()=>{});$('unlockPassword').focus()}
+  function revokeAll(){for(const u of imageUrls.values())URL.revokeObjectURL(u);imageUrls.clear();if(observer){observer.disconnect();observer=null}}
+  function visiblePhotos(){let a=[...photos];const q=$('searchInput').value.trim().toLocaleLowerCase();if(q)a=a.filter(p=>(p.name||'').toLocaleLowerCase().includes(q));if($('filterSelect').value==='fav')a=a.filter(p=>p.favorite);a.sort((a,b)=>$('filterSelect').value==='old'?a.createdAt-b.createdAt:b.createdAt-a.createdAt);return a}
+  function refresh(){const count=photos.length;$('photoCount').textContent=count;$('photoSize').textContent=fmtBytes(photos.reduce((s,p)=>s+(p.storedBytes||0),0));$('countBar').style.width=`${count/MAX_PHOTOS*100}%`;$('galleryHeading').textContent=selectMode?`${selected.size}枚を選択`:'すべての写真';$('selectBtn').textContent=selectMode?'完了':'選択';show('deleteSelectedBtn',selectMode&&selected.size>0);$('addPhotosBtn').disabled=count>=MAX_PHOTOS;renderGallery()}
+  function renderGallery(){const a=visiblePhotos();generation++;const gen=generation;revokeAll();const gallery=$('gallery');gallery.replaceChildren();show('emptyState',a.length===0);if(!a.length){$('emptyTitle').textContent=photos.length===0?'写真はまだありません':'写真が見つかりません';$('emptyDescription').textContent=photos.length===0?'「写真を追加」からまとめて選んで保存できます。':'検索キーワードや表示条件を変更してください。';show('emptyAddBtn',photos.length===0);return}const frag=document.createDocumentFragment();for(const p of a){const tile=document.createElement('button');tile.type='button';tile.className=`tile${selected.has(p.id)?' selected':''}`;tile.dataset.photoId=p.id;tile.setAttribute('aria-label',`${p.name} を${selectMode?'選択':'表示'}`);const placeholder=document.createElement('span');placeholder.className='tile-placeholder';placeholder.textContent='▧';tile.appendChild(placeholder);if(p.favorite){const mark=document.createElement('span');mark.className='fav-mark';mark.textContent='★';tile.appendChild(mark)}if(selectMode){const check=document.createElement('span');check.className='tile-check';check.textContent=selected.has(p.id)?'✓':'';tile.appendChild(check)}const label=document.createElement('span');label.className='tile-label';label.textContent=p.name;tile.appendChild(label);tile.addEventListener('click',()=>{if(selectMode){selected.has(p.id)?selected.delete(p.id):selected.add(p.id);refresh()}else openViewer(p.id)});frag.appendChild(tile)}gallery.appendChild(frag);observer=new IntersectionObserver(entries=>{for(const entry of entries){if(!entry.isIntersecting)continue;observer?.unobserve(entry.target);loadThumb(entry.target,gen)}},{rootMargin:'200px'});gallery.querySelectorAll('.tile').forEach(el=>observer.observe(el))}
+  async function loadThumb(tile,gen){if(gen!==generation||!key)return;try{const r=await get('thumbs',tile.dataset.photoId);if(!r||gen!==generation||!key)return;const bytes=await decrypt(r);if(gen!==generation||!key)return;if(bytes.byteLength===0)return;const url=URL.createObjectURL(new Blob([bytes],{type:'image/jpeg'}));imageUrls.set(tile.dataset.photoId,url);const img=document.createElement('img');img.loading='lazy';img.alt='';img.src=url;tile.querySelector('.tile-placeholder')?.remove();tile.prepend(img)}catch(e){console.warn('サムネイルの読込に失敗:',e)}}
+  function fileAsImage(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('画像を読み込めません'))};img.src=url})}
+  function canvasBlob(canvas,mime='image/jpeg',q=.82){return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('画像の変換に失敗しました')),mime,q))}
+  async function shrinkImage(img,maxSide,qualityValue){const factor=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const w=Math.max(1,Math.round(img.naturalWidth*factor)),h=Math.max(1,Math.round(img.naturalHeight*factor));const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const context=canvas.getContext('2d',{alpha:false});context.fillStyle='#ffffff';context.fillRect(0,0,w,h);context.drawImage(img,0,0,w,h);const blob=await canvasBlob(canvas,'image/jpeg',qualityValue);canvas.width=canvas.height=1;return blob}
+  async function processImage(file,mode){let image=null,thumb=null,width=0,height=0;try{const img=await fileAsImage(file);width=img.naturalWidth;height=img.naturalHeight;thumb=await shrinkImage(img,360,.7);if(mode==='compact')image=await shrinkImage(img,2200,.83)}catch(e){console.warn('変換できない画像は原本で保存します',e)}const main=image||file;const mime=image?'image/jpeg':(file.type||'application/octet-stream');if(!thumb)thumb=new Blob([],{type:'image/jpeg'});return {main,thumb,mime,width,height}}
+  async function savePhoto(file,mode){const {main,thumb,mime,width,height}=await processImage(file,mode);const encrypted=await encrypt(await main.arrayBuffer());const encryptedThumb=await encrypt(await thumb.arrayBuffer());const id=randId(),now=Date.now();const meta={id,name:file.name||`写真-${now}`,mime,createdAt:now,importedAt:now,originalBytes:file.size,storedBytes:main.size,favorite:false,width,height};const tx=transaction(['photos','full','thumbs'],'readwrite');tx.objectStore('photos').add(meta);tx.objectStore('full').add({id,iv:encrypted.iv,data:encrypted.data});tx.objectStore('thumbs').add({id,iv:encryptedThumb.iv,data:encryptedThumb.data});await txDone(tx);photos.push(meta)}
+  function progress(title,msg,ratio=0,cancellable=false){busy=true;show('processing',true);$('processingTitle').textContent=title;$('processingText').textContent=msg;$('processingBar').style.width=`${Math.min(100,Math.round(ratio*100))}%`;show('cancelBtn',cancellable)}
+  function progressOff(){busy=false;show('processing',false);abortImport=false}
+  function nextFrame(){return new Promise(resolve=>setTimeout(resolve,12))}
+  async function addFiles(files){if(!key||busy)return;const candidates=Array.from(files).filter(f=>f.type.startsWith('image/')||/\.(heic|heif|jpe?g|png|webp|gif|bmp|avif)$/i.test(f.name));if(!candidates.length){toast('画像ファイルを選んでください');return}const slots=MAX_PHOTOS-photos.length;const chosen=candidates.slice(0,slots);if(!chosen.length){toast('500枚に達しています');return}const mode=quality;let ok=0,errors=[];abortImport=false;progress('写真を暗号化して保存中',`0 / ${chosen.length} 枚`,0,true);await nextFrame();for(let i=0;i<chosen.length;i++){if(abortImport)break;try{await savePhoto(chosen[i],mode);ok++}catch(e){errors.push(`${chosen[i].name}: ${errMsg(e)}`);if(e?.name==='QuotaExceededError')break}progress('写真を暗号化して保存中',`${i+1} / ${chosen.length} 枚`,(i+1)/chosen.length,true);await nextFrame()}progressOff();refresh();if(errors.length)toast(`${ok}枚保存。${errors.length}枚失敗：${errors[0].slice(0,60)}`);else toast(`${ok}枚の写真を保存しました${candidates.length>slots?'（上限500枚）':''}`)}
+  async function openViewer(id){if(!key)return;const p=photos.find(p=>p.id===id);if(!p)return;currentPhotoId=id;show('viewer',true);$('viewerTitle').textContent=p.name;$('viewerFavBtn').textContent=p.favorite?'★':'☆';$('viewerImage').classList.add('hidden');$('viewerLoading').textContent='読み込み中...';show('viewerLoading',true);if(viewerObjectUrl){URL.revokeObjectURL(viewerObjectUrl);viewerObjectUrl=null}try{const record=await get('full',id);if(currentPhotoId!==id||!key)return;const plain=await decrypt(record);if(currentPhotoId!==id||!key)return;viewerObjectUrl=URL.createObjectURL(new Blob([plain],{type:p.mime||'image/jpeg'}));$('viewerImage').src=viewerObjectUrl;show('viewerImage',true);show('viewerLoading',false)}catch(e){$('viewerLoading').textContent='写真を表示できません：'+errMsg(e)}}
+  function closeViewer(){currentPhotoId=null;show('viewer',false);$('viewerImage').removeAttribute('src');if(viewerObjectUrl){URL.revokeObjectURL(viewerObjectUrl);viewerObjectUrl=null}}
+  async function delIds(ids){if(!ids.length)return;const tx=transaction(['photos','full','thumbs'],'readwrite');for(const id of ids){tx.objectStore('photos').delete(id);tx.objectStore('full').delete(id);tx.objectStore('thumbs').delete(id)}await txDone(tx);photos=photos.filter(p=>!ids.includes(p.id));ids.forEach(id=>selected.delete(id));refresh()}
+  function moveViewer(dir){if(!currentPhotoId)return;const visible=visiblePhotos();const idx=visible.findIndex(p=>p.id===currentPhotoId);if(idx<0)return;const next=visible[(idx+dir+visible.length)%visible.length];openViewer(next.id)}
+  async function downloadCurrent(){const p=photos.find(p=>p.id===currentPhotoId);if(!p||!viewerObjectUrl)return;downloadUrl(viewerObjectUrl,p.name||'photo.jpg')}
+  function downloadUrl(url,name){const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove()}
+  function saveBlob(blob,name){const url=URL.createObjectURL(blob);downloadUrl(url,name);setTimeout(()=>URL.revokeObjectURL(url),60000)}
+  async function storageInfo(){if(!navigator.storage?.estimate){$('storageInfo').textContent='このブラウザは容量表示に対応していません';return}try{const e=await navigator.storage.estimate();$('storageInfo').textContent=`ブラウザの使用量 ${fmtBytes(e.usage||0)} / 割り当て上限 ${fmtBytes(e.quota||0)}（他のサイトの分を含む場合があります）`}catch(e){$('storageInfo').textContent=errMsg(e)}}
+  function serializeConfig(c){return {...c,checkData:Array.from(new Uint8Array(c.checkData))}}
+  function verifyManifest(data,fileSize,start){if(!data||data.format!==2||!data.config||!Array.isArray(data.config.salt)||data.config.salt.length!==16||!Array.isArray(data.config.checkIv)||data.config.checkIv.length!==12||!Array.isArray(data.config.checkData)||data.config.checkData.length<16||!Array.isArray(data.photos)||data.photos.length>MAX_PHOTOS)throw new Error('バックアップ形式が正しくありません');let total=start;for(const p of data.photos){if(!p.meta||!p.meta.id||!Number.isSafeInteger(p.fullLen)||!Number.isSafeInteger(p.thumbLen)||p.fullLen<16||p.thumbLen<0||!Array.isArray(p.fullIv)||!Array.isArray(p.thumbIv)||p.fullIv.length!==12||p.thumbIv.length!==12)throw new Error('バックアップが破損しています');total+=p.fullLen+p.thumbLen}if(total!==fileSize)throw new Error('バックアップのサイズが一致しません')}
+  async function exportBackup(){if(!key||busy)return;let done=0;progress('バックアップを作成中',`0 / ${photos.length} 枚`,0,false);await nextFrame();try{const items=[],chunks=[];for(const p of photos){const [full,thumb]=await Promise.all([get('full',p.id),get('thumbs',p.id)]);if(!full||!thumb)throw new Error('一部の写真データが見つかりません');const fullData=new Uint8Array(full.data),thumbData=new Uint8Array(thumb.data);items.push({meta:p,fullIv:full.iv,fullLen:fullData.byteLength,thumbIv:thumb.iv,thumbLen:thumbData.byteLength});chunks.push(fullData,thumbData);done++;progress('バックアップを作成中',`${done} / ${photos.length} 枚`,photos.length?done/photos.length:1,false);await nextFrame()}const manifest={format:2,createdAt:new Date().toISOString(),config:serializeConfig(config),photos:items};const json=encoder.encode(JSON.stringify(manifest));const header=new Uint8Array(12);header.set(encoder.encode(MAGIC),0);new DataView(header.buffer).setUint32(8,json.length,true);const blob=new Blob([header,json,...chunks],{type:'application/octet-stream'});saveBlob(blob,`PhotoVault-Backup-${new Date().toISOString().slice(0,10)}.pvault`);toast(`${photos.length}枚の暗号化バックアップを作成しました。安全な場所に保存してください。`)}catch(e){toast('バックアップに失敗しました：'+errMsg(e))}finally{progressOff()}}
+  async function restoreBackup(file){if(!file||busy)return;progress('バックアップを確認中','ファイルを読み取っています',0,false);await nextFrame();try{const header=new Uint8Array(await file.slice(0,12).arrayBuffer());if(header.length!==12||decoder.decode(header.slice(0,8))!==MAGIC)throw new Error('Photo Vaultのバックアップではありません');const len=new DataView(header.buffer).getUint32(8,true);if(len>15*1024*1024||12+len>file.size)throw new Error('バックアップのヘッダーが不正です');const manifest=JSON.parse(await file.slice(12,12+len).text());verifyManifest(manifest,file.size,12+len);progressOff();const backupPassword=prompt('バックアップを作成したときのパスワードを入力してください（復元前の確認）');if(backupPassword===null)return;progress('バックアップを検証中','パスワードを確認しています',0,false);const backupKey=await derive(backupPassword,manifest.config.salt);let verified=false;try{const plain=await decrypt({iv:manifest.config.checkIv,data:new Uint8Array(manifest.config.checkData).buffer},backupKey);verified=decoder.decode(plain)===VERIFY}catch(_){verified=false}progressOff();if(!verified)throw new Error('バックアップのパスワードが正しくありません');const message=`バックアップの${manifest.photos.length}枚で現在の保管庫を置き換えます。現在の写真はすべて消えます。続けますか？`;if(!confirm(message))return;progress('写真を復元中',`0 / ${manifest.photos.length} 枚`,0,false);await nextFrame();const cfg=manifest.config;const restoredConfig={id:'config',version:2,salt:cfg.salt,checkIv:cfg.checkIv,checkData:new Uint8Array(cfg.checkData).buffer,createdAt:cfg.createdAt};const wipe=transaction(['photos','full','thumbs','meta'],'readwrite');for(const store of ['photos','full','thumbs','meta'])wipe.objectStore(store).clear();wipe.objectStore('meta').put(restoredConfig);await txDone(wipe);let offset=12+len;for(let i=0;i<manifest.photos.length;i++){const p=manifest.photos[i];const f=await file.slice(offset,offset+p.fullLen).arrayBuffer();offset+=p.fullLen;const t=await file.slice(offset,offset+p.thumbLen).arrayBuffer();offset+=p.thumbLen;const tx=transaction(['photos','full','thumbs'],'readwrite');tx.objectStore('photos').put(p.meta);tx.objectStore('full').put({id:p.meta.id,iv:p.fullIv,data:f});tx.objectStore('thumbs').put({id:p.meta.id,iv:p.thumbIv,data:t});await txDone(tx);progress('写真を復元中',`${i+1} / ${manifest.photos.length} 枚`,(i+1)/Math.max(1,manifest.photos.length),false);await nextFrame()}config=restoredConfig;key=null;photos=[];selected.clear();closeViewer();revokeAll();show('settingsOverlay',false);setScreens('unlock');toast('復元が完了しました。バックアップ作成時のパスワードで解除してください。')}catch(e){toast('復元できませんでした：'+errMsg(e));console.error(e)}finally{progressOff()}}
+  async function clearAll(){if(!confirm('この端末に保存した写真と設定を、すべて削除します。元には戻せません。続けますか？'))return;const reply=prompt('確認のため「削除」と入力してください');if(reply!=='削除')return;const tx=transaction(['meta','photos','full','thumbs'],'readwrite');for(const store of ['meta','photos','full','thumbs'])tx.objectStore(store).clear();await txDone(tx);key=null;config=null;photos=[];closeViewer();revokeAll();show('settingsOverlay',false);setScreens('setup');toast('保管庫のデータを削除しました')}
+  function bind(){
+    $('setupForm').addEventListener('submit',async e=>{e.preventDefault();const p=$('newPassword').value;if(p.length<8)return toast('パスワードは8文字以上にしてください');if(p!==$('confirmPassword').value)return toast('パスワードが一致しません');if(busy)return;progress('保管庫を作成中','パスワードの鍵を準備しています',.5,false);try{await createVault(p);toast('保管庫を作成しました')}catch(e){toast('作成に失敗：'+errMsg(e))}finally{progressOff()}});
+    $('unlockForm').addEventListener('submit',async e=>{e.preventDefault();if(busy)return;progress('ロック解除中','パスワードを確認しています',.5,false);try{await unlockVault($('unlockPassword').value)}catch(e){toast(e.name==='OperationError'?'パスワードが違います':'解除に失敗しました：'+errMsg(e))}finally{progressOff()}});
+    $('lockBtn').addEventListener('click',lockVault);$('addPhotosBtn').addEventListener('click',()=>$('photosInput').click());$('emptyAddBtn').addEventListener('click',()=>$('photosInput').click());$('photosInput').addEventListener('change',e=>{const fs=e.target.files;addFiles(fs);e.target.value=''});
+    $('settingsBtn').addEventListener('click',()=>show('settingsOverlay',true));$('closeSettingsBtn').addEventListener('click',()=>show('settingsOverlay',false));$('settingsOverlay').addEventListener('click',e=>{if(e.target===$('settingsOverlay'))show('settingsOverlay',false)});$('qualityMode').addEventListener('change',e=>{quality=e.target.value;toast(quality==='compact'?'容量節約モードにしました':'元画質保存モードにしました')});
+    $('filterSelect').addEventListener('change',refresh);$('searchInput').addEventListener('input',refresh);
+    $('selectBtn').addEventListener('click',()=>{selectMode=!selectMode;selected.clear();refresh()});$('deleteSelectedBtn').addEventListener('click',async()=>{const ids=[...selected];if(!confirm(`${ids.length}枚の写真を完全に削除しますか？`))return;try{await delIds(ids);toast(`${ids.length}枚を削除しました`)}catch(e){toast(errMsg(e))}});
+    $('viewerCloseBtn').addEventListener('click',closeViewer);$('prevBtn').addEventListener('click',()=>moveViewer(-1));$('nextBtn').addEventListener('click',()=>moveViewer(1));$('viewerFavBtn').addEventListener('click',async()=>{const p=photos.find(p=>p.id===currentPhotoId);if(!p)return;p.favorite=!p.favorite;try{await put('photos',p);$('viewerFavBtn').textContent=p.favorite?'★':'☆';refresh()}catch(e){toast(errMsg(e))}});
+    $('downloadBtn').addEventListener('click',downloadCurrent);$('deleteBtn').addEventListener('click',async()=>{if(!currentPhotoId)return;if(!confirm('この写真を完全に削除しますか？'))return;const id=currentPhotoId;closeViewer();try{await delIds([id]);toast('写真を削除しました')}catch(e){toast(errMsg(e))}});
+    $('exportBtn').addEventListener('click',exportBackup);$('restoreBtn').addEventListener('click',()=>$('backupInput').click());$('setupRestoreBtn').addEventListener('click',()=>$('backupInput').click());$('backupInput').addEventListener('change',e=>{const f=e.target.files?.[0];e.target.value='';restoreBackup(f)});$('storageBtn').addEventListener('click',storageInfo);$('clearVaultBtn').addEventListener('click',clearAll);$('cancelBtn').addEventListener('click',()=>{abortImport=true;$('processingText').textContent='現在の写真を保存後、停止します…'});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeViewer();show('settingsOverlay',false)}if(!currentPhotoId)return;if(e.key==='ArrowLeft')moveViewer(-1);if(e.key==='ArrowRight')moveViewer(1)});
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){/* UI remains open; password is never sent anywhere. */}});
   }
-
-  function showScreen(id) {
-    screens.forEach(s => $(s).classList.toggle('active', s === id));
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-
-  function saveRun() {
-    if (state) localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-    updateContinueButton();
-  }
-
-  function clearRun() {
-    localStorage.removeItem(SAVE_KEY);
-    updateContinueButton();
-  }
-
-  function updateContinueButton() {
-    $('continueBtn').disabled = !localStorage.getItem(SAVE_KEY);
-  }
-
-  function updateHomeStats() {
-    const s = loadStats();
-    $('bestFloor').textContent = s.bestFloor;
-    $('totalAnswers').textContent = s.totalAnswers;
-    $('accuracy').textContent = s.totalAnswers ? `${Math.round(s.correctAnswers / s.totalAnswers * 100)}%` : '0%';
-    $('maxCombo').textContent = s.maxCombo;
-  }
-
-  function loadQuestions() {
-    fetch('data/questions.json', {cache:'no-store'})
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => { if (Array.isArray(data) && data.length) questions = data; })
-      .catch(() => { questions = fallbackQuestions; });
-  }
-
-  function startNewRun() {
-    state = freshRun();
-    setupRoom();
-    showScreen('runScreen');
-    saveRun();
-  }
-
-  function continueRun() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
-      if (!saved) return startNewRun();
-      state = saved;
-      if (!state.enemy) setupRoom();
-      renderAll();
-      if (!state.answeredCurrent) newQuestion(); else renderQuestionById(state.currentQuestionId);
-      showScreen('runScreen');
-    } catch { startNewRun(); }
-  }
-
-  function setupRoom() {
-    const template = ENEMIES[Math.min(state.room, ENEMIES.length - 1)];
-    state.enemy = {...template,maxHp:template.hp};
-    state.energy = 0;
-    state.block = 0;
-    state.focusBonus = 0;
-    state.hand = ensureAffordableHand(drawHand());
-    state.answeredCurrent = false;
-    state.currentQuestionId = null;
-    renderAll();
-    newQuestion();
-    log(`${state.enemy.name} が現れた。問題に正解して行動しよう。`);
-  }
-
-  function ensureAffordableHand(hand) {
-    const result = [...hand];
-    const hasCostOne = result.some(id => {
-      const c = CARD_POOL.find(x => x.id === id);
-      return c && c.cost <= 1;
-    });
-    if (!hasCostOne) result[0] = 'strike';
-    return result;
-  }
-
-  function drawHand() {
-    const cards = state.deck.map(id => CARD_POOL.find(c => c.id === id)).filter(Boolean);
-    const shuffled = [...cards].sort(() => Math.random() - 0.5);
-    while (shuffled.length < 3) shuffled.push(CARD_POOL[0]);
-    return shuffled.slice(0,3).map(c => c.id);
-  }
-
-  function randomQuestion() {
-    if (!questions.length) return fallbackQuestions[0];
-    const prev = state.currentQuestionId;
-    let pool = questions.filter(q => q.id !== prev);
-    if (!pool.length) pool = questions;
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
-
-  function newQuestion() {
-    lockedAnswer = false;
-    state.answeredCurrent = false;
-    const q = randomQuestion();
-    state.currentQuestionId = q.id;
-    renderQuestion(q);
-    renderHand();
-    saveRun();
-  }
-
-  function renderQuestionById(id) {
-    const q = questions.find(x => x.id === id) || randomQuestion();
-    state.currentQuestionId = q.id;
-    renderQuestion(q);
-  }
-
-  function renderQuestion(q) {
-    $('questionSubject').textContent = q.subject || 'STUDY';
-    $('questionDifficulty').textContent = q.difficulty || 'NORMAL';
-    $('questionText').textContent = q.question;
-    $('explanation').classList.add('hidden');
-    $('explanation').textContent = '';
-    const wrap = $('choices');
-    wrap.innerHTML = '';
-    q.choices.forEach((text, i) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'choice';
-      b.textContent = `${String.fromCharCode(65+i)}. ${text}`;
-      b.disabled = !!state.answeredCurrent;
-      b.addEventListener('click', () => answerQuestion(i, q, b));
-      wrap.appendChild(b);
-    });
-  }
-
-  function answerQuestion(index, q, clicked) {
-    if (lockedAnswer || state.answeredCurrent) return;
-    lockedAnswer = true;
-    state.runAnswers += 1;
-    const stats = loadStats();
-    stats.totalAnswers += 1;
-    const buttons = [...$('choices').children];
-    buttons.forEach((b,i) => { b.disabled = true; if (i === q.answer) b.classList.add('correct'); });
-
-    if (index === q.answer) {
-      clicked.classList.add('correct');
-      state.combo += 1;
-      state.runCorrect += 1;
-      stats.correctAnswers += 1;
-      stats.maxCombo = Math.max(stats.maxCombo, state.combo);
-      const bonusEnergy = state.combo >= 10 ? 3 : state.combo >= 5 ? 2 : 1;
-      state.energy += bonusEnergy;
-      state.answeredCurrent = true;
-      log(`正解！ ENERGY +${bonusEnergy}。カードを1枚使える。`);
-      $('question-card');
-      document.querySelector('.question-card').classList.add('flash-good');
-      setTimeout(()=>document.querySelector('.question-card').classList.remove('flash-good'),450);
-      $('actionHint').textContent = '使うカードを選択';
-    } else {
-      clicked.classList.add('wrong');
-      state.combo = 0;
-      state.answeredCurrent = true;
-      log(`不正解。${state.enemy.name} の反撃！`);
-      document.querySelector('.question-card').classList.add('flash-bad');
-      setTimeout(()=>document.querySelector('.question-card').classList.remove('flash-bad'),450);
-      setTimeout(() => enemyAttack(true), 450);
-    }
-
-    $('explanation').textContent = q.explanation || '解説はありません。';
-    $('explanation').classList.remove('hidden');
-    saveStats(stats);
-    renderAll();
-    saveRun();
-  }
-
-  function renderAll() {
-    if (!state) return;
-    $('playerHpText').textContent = `${Math.max(0,state.hp)} / ${state.maxHp}`;
-    $('playerHpBar').style.width = `${Math.max(0,state.hp) / state.maxHp * 100}%`;
-    $('roomText').textContent = `${state.room + 1} / ${ENEMIES.length}`;
-    $('comboText').textContent = state.combo;
-    $('energyText').textContent = state.energy;
-    renderMap();
-    renderEnemy();
-    renderHand();
-  }
-
-  function renderMap() {
-    const map = $('mapNodes');
-    map.innerHTML = '';
-    ENEMIES.forEach((e,i) => {
-      const node = document.createElement('div');
-      node.className = 'node' + (i < state.room ? ' cleared' : '') + (i === state.room ? ' active' : '');
-      node.textContent = i === ENEMIES.length-1 ? 'B' : i + 1;
-      map.appendChild(node);
-    });
-  }
-
-  function renderEnemy() {
-    if (!state.enemy) return;
-    $('enemyName').textContent = state.enemy.name;
-    $('enemyEmoji').textContent = state.enemy.emoji;
-    $('enemyType').textContent = state.enemy.type;
-    $('enemyHpText').textContent = `${Math.max(0,state.enemy.hp)} / ${state.enemy.maxHp}`;
-    $('enemyAtkText').textContent = state.enemy.atk;
-    $('enemyHpBar').style.width = `${Math.max(0,state.enemy.hp) / state.enemy.maxHp * 100}%`;
-  }
-
-  function renderHand() {
-    const wrap = $('hand');
-    if (!state) return;
-    wrap.innerHTML = '';
-    state.hand.forEach((id, slot) => {
-      const card = CARD_POOL.find(c => c.id === id);
-      if (!card) return;
-      const b = document.createElement('button');
-      b.type = 'button';
-      const canPlay = state.answeredCurrent && state.energy >= card.cost;
-      b.className = 'cardbtn' + (canPlay ? ' playable' : '');
-      b.disabled = !canPlay;
-      b.innerHTML = `<span class="cost">COST ${card.cost}</span><strong>${card.name}</strong><p>${card.desc}</p>`;
-      b.addEventListener('click', () => playCard(card, slot));
-      wrap.appendChild(b);
-    });
-  }
-
-  function playCard(card, slot) {
-    if (!state.answeredCurrent || state.energy < card.cost) return;
-    state.energy -= card.cost;
-    let damage = card.effect.damage || 0;
-    if (damage && state.focusBonus) {
-      damage += state.focusBonus;
-      state.focusBonus = 0;
-    }
-    if (damage) state.enemy.hp -= damage;
-    if (card.effect.block) state.block += card.effect.block;
-    if (card.effect.heal) state.hp = Math.min(state.maxHp, state.hp + card.effect.heal);
-    if (card.effect.focus) state.focusBonus += card.effect.focus;
-    if (card.effect.energy) state.energy += card.effect.energy;
-    state.hand[slot] = randomDeckCard();
-    state.hand = ensureAffordableHand(state.hand);
-    log(`${card.name} 発動${damage ? `：${damage}ダメージ` : ''}${card.effect.heal ? ` / HP+${card.effect.heal}` : ''}${card.effect.block ? ` / BLOCK+${card.effect.block}` : ''}`);
-    renderAll();
-
-    if (state.enemy.hp <= 0) {
-      setTimeout(roomClear, 350);
-      return;
-    }
-
-    setTimeout(() => enemyAttack(false), 400);
-  }
-
-  function randomDeckCard() {
-    const id = state.deck[Math.floor(Math.random() * state.deck.length)];
-    return id || 'strike';
-  }
-
-  function enemyAttack(fromWrongAnswer) {
-    if (!state || !state.enemy || state.enemy.hp <= 0) return;
-    const raw = state.enemy.atk;
-    const absorbed = Math.min(state.block, raw);
-    const dmg = Math.max(0, raw - absorbed);
-    state.block = Math.max(0, state.block - raw);
-    state.hp -= dmg;
-    log(`${state.enemy.name} の攻撃：${dmg}ダメージ${absorbed ? `（${absorbed}軽減）` : ''}`);
-    renderAll();
-    saveRun();
-
-    if (state.hp <= 0) return setTimeout(gameOver, 250);
-    setTimeout(() => {
-      if (fromWrongAnswer || state.answeredCurrent) newQuestion();
-    }, 650);
-  }
-
-  function roomClear() {
-    const stats = loadStats();
-    stats.bestFloor = Math.max(stats.bestFloor, state.room + 1);
-    saveStats(stats);
-
-    if (state.room >= ENEMIES.length - 1) return victory();
-    showRewards();
-  }
-
-  function showRewards() {
-    const choices = [...CARD_POOL].sort(() => Math.random() - 0.5).slice(0,3);
-    const wrap = $('rewardCards');
-    wrap.innerHTML = '';
-    choices.forEach(card => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'reward-card';
-      b.innerHTML = `<span class="rarity">${card.rarity}</span><strong>${card.name}</strong><p>${card.desc}</p>`;
-      b.addEventListener('click', () => chooseReward(card));
-      wrap.appendChild(b);
-    });
-    showScreen('rewardScreen');
-  }
-
-  function chooseReward(card) {
-    state.deck.push(card.id);
-    state.room += 1;
-    state.hp = Math.min(state.maxHp, state.hp + 8);
-    setupRoom();
-    showScreen('runScreen');
-    saveRun();
-  }
-
-  function gameOver() {
-    const stats = loadStats();
-    stats.bestFloor = Math.max(stats.bestFloor, state.room + 1);
-    saveStats(stats);
-    $('gameOverText').textContent = `到達 ROOM ${state.room + 1} / ${ENEMIES.length} ・ 正解 ${state.runCorrect} / ${state.runAnswers}`;
-    clearRun();
-    showScreen('gameOverScreen');
-  }
-
-  function victory() {
-    const stats = loadStats();
-    stats.bestFloor = ENEMIES.length;
-    stats.wins += 1;
-    saveStats(stats);
-    $('victoryText').textContent = `5部屋踏破！ 正解 ${state.runCorrect} / ${state.runAnswers} ・ 最大コンボ ${Math.max(state.combo, stats.maxCombo)}`;
-    clearRun();
-    showScreen('victoryScreen');
-  }
-
-  function log(text) { $('battleLog').textContent = text; }
-
-  $('newRunBtn').addEventListener('click', startNewRun);
-  $('continueBtn').addEventListener('click', continueRun);
-  $('retryBtn').addEventListener('click', startNewRun);
-  $('againBtn').addEventListener('click', startNewRun);
-  $('homeBtn1').addEventListener('click', () => { updateHomeStats(); showScreen('homeScreen'); });
-  $('homeBtn2').addEventListener('click', () => { updateHomeStats(); showScreen('homeScreen'); });
-  $('resetBtn').addEventListener('click', () => {
-    if (!confirm('セーブデータと成績をリセットしますか？')) return;
-    localStorage.removeItem(SAVE_KEY);
-    localStorage.removeItem(STATS_KEY);
-    state = null;
-    updateHomeStats();
-    updateContinueButton();
-    showScreen('homeScreen');
-  });
-
-  questions = fallbackQuestions;
-  updateHomeStats();
-  updateContinueButton();
+  bind();start();
+  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();
-
 </script>
 </body>
 </html>
