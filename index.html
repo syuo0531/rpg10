@@ -8,8 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Photo Vault">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="manifest" href="./manifest-v3.webmanifest">
+  <link rel="apple-touch-icon" sizes="192x192" href="./safe-icon-192.png">
   <title>Photo Vault | 写真保管庫</title>
   <style>
     :root { color-scheme: dark; --bg:#0b1020; --surface:#131c30; --surface2:#19243a; --border:rgba(255,255,255,.1); --text:#f8faff; --muted:#a0aec7; --accent:#9af1d8; --accentText:#0c2b25; --danger:#ff8b98; --radius:20px; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif; }
@@ -136,7 +136,7 @@
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){/* UI remains open; password is never sent anywhere. */}});
   }
   bind();start();
-  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw-v3.js',{updateViaCache:'none'}).catch(()=>{});
 })();
 </script>
 </body>

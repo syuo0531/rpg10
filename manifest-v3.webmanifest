@@ -1,0 +1,20 @@
+{
+  "id": "/rpg10/",
+  "name": "Photo Vault - 写真保管庫",
+  "short_name": "Photo Vault",
+  "description": "iPhoneで使えるパスワード付き写真保管庫。写真はこの端末内に保存します。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#10172b",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "./safe-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
